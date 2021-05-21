@@ -1,0 +1,131 @@
+---
+  ###
+  ###
+  # UPDATE KUBERNETES MASTER
+  ###
+  ###
+  - name: Get Master node
+    become: yes
+    become_user: "{{ kubernetes_user_for_k8s_master }}"
+    shell: kubectl get nodes -o wide | grep {{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }} | awk '{print $1}'
+    register: master_node
+
+#  - name: Get Master node
+#    debug: msg="{{ master_node.stdout }}"
+
+  - name: Drain Master node
+    become: yes
+    become_user: "{{ kubernetes_user_for_k8s_master }}"
+    shell: kubectl drain {{ master_node.stdout }} --ignore-daemonsets
+
+
+  - name: apt-mark unhold kubeadm
+    dpkg_selections:
+      name: kubeadm
+      selection: install
+
+  - name: Update kubeadm
+    apt:
+      name: kubeadm={{ version_to_upgrade }}
+      state: present
+      update_cache: yes
+      autoclean: yes
+
+  - name: apt-mark hold kubeadm
+    dpkg_selections:
+      name: kubeadm
+      selection: hold
+
+  - name: Get kubeadm version
+    shell: "kubeadm version -o short"
+    register: kubeadm_version
+
+  - name: Verify kubeadm version
+    debug: msg="{{ kubeadm_version.stdout }}"
+
+
+  - name: Upgrade Kubernetes Cluster
+    shell: kubeadm upgrade plan v`echo {{ version_to_upgrade }} | awk -F"-" '{print $1}' >> node_updated_`date +'%y%m%d-%H%M%S'`.txt`
+    args:
+      chdir: $HOME
+
+
+  - name: apt-mark unhold kubectl
+    dpkg_selections:
+      name: kubectl
+      selection: install
+
+  - name: Update kubectl
+    apt:
+      name: kubectl={{ version_to_upgrade }}
+      state: present
+      force: yes
+      update_cache: yes
+      autoclean: yes
+
+  - name: apt-mark hold kubectl
+    dpkg_selections:
+      name: kubectl
+      selection: hold
+
+  - name: Get kubectl version
+    shell: "kubectl version --short --client"
+    register: kubectl_version
+
+  - name: Verify kubectl version
+    debug: msg="{{ kubectl_version.stdout }}"
+
+
+  - name: apt-mark unhold kubelet
+    dpkg_selections:
+      name: kubelet
+      selection: install
+
+  - name: Update kubelet
+    apt:
+      name: kubelet={{ version_to_upgrade }}
+      state: present
+      update_cache: yes
+      autoclean: yes
+
+  - name: apt-mark hold kubelet
+    dpkg_selections:
+      name: kubelet
+      selection: hold
+
+  - name: Get kubelet version
+    shell: "kubelet --version"
+    register: kubelet_version
+
+  - name: Verify kubelet version
+    debug: msg="{{ kubelet_version.stdout }}"
+
+  - name: Restart kubelet Service
+    systemd:
+      state: restarted
+      name: kubelet
+      enabled: yes
+
+
+  - name: Waiting for kubelet to be ready"
+    pause:
+      seconds: 5
+
+  - name: Uncordon Master node
+    become: yes
+    become_user: "{{ kubernetes_user_for_k8s_master }}"
+    shell: kubectl uncordon {{ master_node.stdout }}
+
+
+  - name: Get node(s) status
+    become: yes
+    become_user: "{{ kubernetes_user_for_k8s_master }}"
+    shell: kubectl get nodes
+    register: kubectl_get_nodes
+
+  - name: Verify node(s) status
+    debug: msg="{{ kubectl_get_nodes.stdout_lines }}"
+
+  - name: Upgrade completed for {{ ansible_hostname }}
+    pause:
+      seconds: 10

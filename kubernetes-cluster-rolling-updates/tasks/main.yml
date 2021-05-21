@@ -1,0 +1,8 @@
+---
+# task file for kubernetes-cluster-rolling-updates
+
+- import_tasks: update-master.yml
+  when: "inventory_group_for_master_node in group_names"
+
+- import_tasks: update-workers.yml
+  when: "inventory_group_for_worker_nodes in group_names"
