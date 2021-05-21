@@ -1,0 +1,21 @@
+---
+# task file for kubernetes-setup
+
+- import_tasks: create-k8s-privilege-user.yml
+- import_tasks: disable-swap.yml
+- import_tasks: configure-firewall.yml
+  when: configure_firewall == true
+
+- import_tasks: install-containerd.yml
+- import_tasks: install-kubernetes.yml
+- import_tasks: setup-kubernetes-master.yml
+  when: "ansible_hosts_for_k8s_master in group_names"
+- import_tasks: join-kubernetes-cluster-workers.yml
+  when: "ansible_hosts_for_k8s_worker in group_names"
+- import_tasks: get-nodes-status-master.yml
+  when: "ansible_hosts_for_k8s_master in group_names"
+
+- import_tasks: test-deployment-master.yml
+  when:
+    - test_deployment == true
+    - "ansible_hosts_for_k8s_master in group_names"

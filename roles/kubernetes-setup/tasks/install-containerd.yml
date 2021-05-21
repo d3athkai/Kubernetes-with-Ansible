@@ -1,0 +1,126 @@
+---
+  ###
+  ###
+  # SETUP CONTAINERD: https://kubernetes.io/docs/setup/production-environment/container-runtimes/#containerd
+  ###
+  ###
+  - name: Configure the required kernel modules
+    shell: |
+      cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+      overlay
+      br_netfilter
+      EOF
+
+  - name: Add the overlay module
+    modprobe:
+      name: overlay
+      state: present
+
+  - name: Add the br_netfilter module
+    modprobe:
+      name: br_netfilter
+      state: present
+
+  - name: Get if the required kernel modules are loaded
+    shell: "lsmod | egrep -w 'overlay|br_netfilter'"
+    register: kernel_modules
+
+  - name: Verify if the required modules are loaded
+    debug: msg="{{ kernel_modules.stdout_lines }}"
+
+
+  - name: Configure the required sysctl params (ipv4)
+    shell: |
+      cat <<EOF | tee /etc/sysctl.d/99-kubernetes-cri.conf
+      net.bridge.bridge-nf-call-iptables  = 1
+      net.ipv4.ip_forward                 = 1
+      EOF
+    when: ipv6_enabled == false
+
+  - name: Configure the required sysctl params (ipv4 + ipv6)
+    shell: |
+      cat <<EOF | tee /etc/sysctl.d/99-kubernetes-cri.conf
+      net.bridge.bridge-nf-call-iptables  = 1
+      net.ipv4.ip_forward                 = 1
+      net.bridge.bridge-nf-call-ip6tables = 1
+      EOF
+    when: ipv6_enabled == true
+
+  - name: Ensure IP Forwarding is enabled
+    lineinfile:
+      path: /etc/sysctl.conf
+      regexp: '^net.ipv4.ip_forward'
+      line: net.ipv4.ip_forward = 1
+      state: present
+
+  - name: Apply sysctl params
+    shell: "sysctl --system"
+    
+  - name: View sysctl params
+    shell: "cat /etc/sysctl.d/99-kubernetes-cri.conf"
+    register: systctl
+
+  - name: Verify sysctl params
+    debug: msg="{{ systctl.stdout_lines }}"
+
+
+
+  - name: Install packages to allow apt to use a repository over HTTPS
+    apt:
+      name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      state: latest
+      update_cache: yes
+      autoclean: yes
+
+  - name: Add Docker’s official GPG key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker's stable Repository
+    apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+      state: present
+      filename: "docker"
+
+  - name: Install containerd.io package 
+    apt:
+      name:
+      - containerd.io
+      state: latest
+      update_cache: yes
+      autoclean: yes
+
+  - name: Create containerd directory
+    file:
+      path: /etc/containerd
+      state: directory
+      mode: '0755'
+
+  - name: Configure containerd
+    shell: containerd config default | tee /etc/containerd/config.toml
+
+  - name: Using the systemd cgroup driver
+    lineinfile:
+      path: /etc/containerd/config.toml
+      regexp: '^SystemdCgroup'
+      line: SystemdCgroup = true
+      state: present
+
+  - name: Restart containerd
+    systemd:
+      state: restarted
+      name: containerd
+      enabled: yes
+
+  - name: Get containerd version
+    shell: containerd --version
+    register: containerd_version
+
+  - name: Verify containerd version
+    debug: msg="{{ containerd_version.stdout }}"

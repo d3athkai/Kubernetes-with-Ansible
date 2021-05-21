@@ -1,0 +1,100 @@
+---
+  ###
+  ###
+  # SETUP KUBERNETES for all nodes: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+  ###
+  ###
+  - name: Install acl packages (required by ansible)
+    become: yes
+    apt:
+      name:
+      - acl
+      state: latest
+      update_cache: yes
+      autoclean: yes
+
+  - name: Install packages to allow apt to use a repository over HTTPS
+    apt:
+      name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      state: latest
+      update_cache: yes
+      autoclean: yes
+
+  - name: Add Kubernetes’s official GPG key
+    apt_key:
+      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      state: present
+
+  - name: Add Kubernetes's stable Repository
+    apt_repository:
+      repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+      state: present
+      filename: "kubernetes"
+
+
+  - name: Install kubelet
+    apt:
+      name: kubelet={{ kubernetes_version }}
+      state: present
+      update_cache: yes
+      autoclean: yes
+
+  - name: apt-mark hold kubelet
+    dpkg_selections:
+      name: kubelet
+      selection: hold
+
+  - name: Get kubelet version
+    shell: "kubelet --version"
+    register: kubelet_version
+
+  - name: Verify kubelet version
+    debug: msg="{{ kubelet_version.stdout }}"
+
+  - name: Restart kubelet Service
+    systemd:
+      state: restarted
+      name: kubelet
+
+
+  - name: Install kubeadm
+    apt:
+      name: kubeadm={{ kubernetes_version }}
+      state: present
+      update_cache: yes
+      autoclean: yes
+
+  - name: apt-mark hold kubeadm
+    dpkg_selections:
+      name: kubeadm
+      selection: hold
+
+  - name: Get kubeadm version
+    shell: "kubeadm version -o short"
+    register: kubeadm_version
+
+  - name: Verify kubeadm version
+    debug: msg="{{ kubeadm_version.stdout }}"
+
+
+  - name: Install kubelet
+    apt:
+      name: kubelet={{ kubernetes_version }}
+      state: present
+      update_cache: yes
+      autoclean: yes
+
+  - name: apt-mark hold kubelet
+    dpkg_selections:
+      name: kubelet
+      selection: hold
+
+  - name: Get kubelet version
+    shell: "kubelet --version"
+    register: kubelet_version
+
+  - name: Verify kubelet version
+    debug: msg="{{ kubelet_version.stdout }}"

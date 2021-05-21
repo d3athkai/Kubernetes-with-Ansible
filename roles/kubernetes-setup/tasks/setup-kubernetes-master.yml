@@ -1,0 +1,54 @@
+---
+  ###
+  ###
+  # SETUP KUBERNETES for master: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
+  ###
+  ###
+
+  - name: Initialize the cluster
+    shell: "kubeadm init --pod-network-cidr={{ pod_network_cidr }} --apiserver-advertise-address={{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }} --apiserver-bind-port={{ kubernetes_api_server_port }} >> cluster_initialized.txt"
+    args:
+      chdir: $HOME
+      creates: cluster_initialized.txt
+
+  - name: Create .kube directory
+    become: yes
+    become_user: "{{ kubernetes_user }}"
+    file:
+      path: $HOME/.kube
+      state: directory
+      owner: "{{ kubernetes_user }}"
+      group: "{{ kubernetes_group }}"
+      mode: 0755
+
+  - name: Copy admin.conf to {{ kubernetes_user }}'s .kube/config
+    copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/{{ kubernetes_user }}/.kube/config
+      owner: "{{ kubernetes_user }}"
+      group: "{{ kubernetes_group }}"
+      remote_src: yes
+
+  # https://www.weave.works/docs/net/latest/kubernetes/kube-addon/#install
+  - name: Deploy Weave Net Pod network
+    become: yes
+    become_user: "{{ kubernetes_user }}"
+    shell: "kubectl apply -f \"https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')\" >> pod_network_setup.txt"
+    args:
+      chdir: $HOME
+      creates: pod_network_setup.txt
+
+  - name: Get cluster token
+    shell: kubeadm token list | cut -d ' ' -f1 | sed -n '2p'
+    register: K8S_TOKEN
+
+  - name: Get CA Hash
+    shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+    register: K8S_MASTER_CA_HASH
+
+  - name: "Register K8S Token and Hash variables"
+    add_host:
+      name: "JOIN_K8S_CLUSTER"
+      master: "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
+      token: "{{ K8S_TOKEN.stdout }}"
+      hash: "{{ K8S_MASTER_CA_HASH.stdout }}"

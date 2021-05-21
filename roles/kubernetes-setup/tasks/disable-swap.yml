@@ -1,0 +1,42 @@
+---
+  ###
+  ###
+  # DISABLE SWAP
+  ###
+  ###
+  - name: Disable Swap
+    shell: "swapoff -a"
+
+  - name: Remove the Swap file
+    file:
+      path: /swap.img
+      state: absent
+
+  - name: Check if fstab original config file exists?
+    stat:
+      path: /etc/fstab.orig
+    register: fstab_exists
+
+  - name: Make a backup of fstab config file if original config file not exists
+    copy:
+      remote_src: yes
+      src: /etc/fstab
+      dest: /etc/fstab.orig
+      force: no
+    when: fstab_exists.stat.exists == false
+
+  - name: Remove Swap entry from /etc/fstab
+    lineinfile:
+      path: /etc/fstab
+      regexp: 'swap'
+      state: absent
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Get Swap value
+    shell: "free -h | grep -w Swap"
+    register: is_swap_disabled
+
+  - name: Verify Swap is disabled
+    debug: msg="{{ is_swap_disabled.stdout }}"

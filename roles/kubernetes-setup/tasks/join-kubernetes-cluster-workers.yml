@@ -1,0 +1,14 @@
+---
+  ###
+  ###
+  # JOIN KUBERNETES CLUSTER
+  ###
+  ###
+  - name: Join Kubernetes Cluster
+    shell: >
+      kubeadm join --token={{ hostvars['JOIN_K8S_CLUSTER']['token'] }} 
+      --discovery-token-ca-cert-hash sha256:{{ hostvars['JOIN_K8S_CLUSTER']['hash'] }} 
+      {{ hostvars['JOIN_K8S_CLUSTER']['master'] }}:6443 >> node_joined.txt
+    args:
+      chdir: $HOME
+      creates: node_joined.txt

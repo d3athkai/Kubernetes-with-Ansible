@@ -1,0 +1,27 @@
+---
+galaxy_info:
+  author: d3athkai
+  description: Kubernetes Cluster bootstrapping with kubeadm for Ubuntu
+  company: https://github.com/d3athkai
+
+  license: "license (GPLv3)"
+
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+
+  galaxy_tags:
+    - docker
+    - kubeadm
+    - kubectl
+    - kubelet
+    - kubernetes
+    - setup
+
+collections:
+  - community.general
+
+dependencies: []
