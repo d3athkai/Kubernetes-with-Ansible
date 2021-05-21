@@ -1,0 +1,15 @@
+---
+###
+###
+# Kubernetes Cluster bootstrapping with kubeadm for Ubuntu
+#
+# Changelogs:
+# - v1: 21/05/2021 - initial release
+###
+###
+- name: Kubernetes Cluster bootstrapping with kubeadm for Ubuntu
+  hosts: k8s
+  become: yes
+  become_user: root
+  roles:
+  - kubernetes-setup

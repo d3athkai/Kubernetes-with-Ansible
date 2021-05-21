@@ -1,0 +1,16 @@
+---
+###
+###
+# Kubernetes Cluster rolling updates
+#
+# Changelogs:
+# - v1: 21/05/2021 - initial release
+###
+###
+- name: ubernetes Cluster rolling updates
+  hosts: k8s
+  serial: 1
+  become: yes
+  become_user: root
+  roles:
+  - kubernetes-cluster-rolling-updates
