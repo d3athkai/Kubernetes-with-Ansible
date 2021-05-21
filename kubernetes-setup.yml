@@ -8,7 +8,7 @@
 ###
 ###
 - name: Kubernetes Cluster bootstrapping with kubeadm for Ubuntu
-  hosts: k8s
+  hosts: <ansible multi-groups for master node and worker node(s)>
   become: yes
   become_user: root
   roles:
