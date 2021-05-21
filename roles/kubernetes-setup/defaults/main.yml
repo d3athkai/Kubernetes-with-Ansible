@@ -2,8 +2,8 @@
 # defaults file for kubernetes-setup
 
 # Linux user and group to manage Kubernetes Cluster
-kubernetes_user: kubeusr     # This will create a privillege user without password. You can set the password for this user later.
-kubernetes_group: kubeusr
+kubernetes_user: <user to manage kubernetes cluster>     # This will create a privillege user without password. You can set the password for this user later.
+kubernetes_group: <group to manage kubernetes cluster>
 
 # Is IPv6 enabled on all nodes?
 ipv6_enabled: false
@@ -12,9 +12,9 @@ ipv6_enabled: false
 configure_firewall: true
 kubernetes_api_server_port: 6443
 
-# Ansible Hosts file group for Master node and Workers nodes
-ansible_hosts_for_k8s_master: k8s-master
-ansible_hosts_for_k8s_worker: k8s-worker
+# Ansible Inventory group for Master node and Workers nodes
+ansible_hosts_for_k8s_master: <ansible inventory group for master node>
+ansible_hosts_for_k8s_worker: <ansible inventory group for worker node(s)>
 
 # Kubernetes version and POD Network CIDR
 # Latest Kubernetes version: https://github.com/kubernetes/kubernetes/releases
