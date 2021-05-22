@@ -2,6 +2,19 @@
 * Ansible Server to run the role(s)
 * Master node and Workers nodes installed with Ubuntu 20 (focal)
 * Full network connectivity between the Ansible Server, Master node and Workers nodes
+* Ansible inventory file configured, example:  
+```
+[k8smaster]  
+master-node  
+  
+[k8workers]  
+worker-node1  
+worker-node2  
+  
+[k8s:children]  
+k8smaster  
+k8workers  
+```
   
 # Ansible Roles
 There are currently **2** roles available:  
