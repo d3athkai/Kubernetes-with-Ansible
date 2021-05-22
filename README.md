@@ -18,6 +18,16 @@ This will setup the Kubernetes Cluster of the following design:
 * Weave Net for Pod network
 * Option of configuring required ports for Master and Worker nodes with [UFW](https://wiki.ubuntu.com/UncomplicatedFirewall)
 * Option of creating an NGINX deployment after the Kubernetes Cluster is setup
+
+#### Usage:  
+1. Download both *kubernetes-setup.yml* file and *kubernetes-setup* directory to your Ansible server.
+2. Move *kubernetes-setup* directory to Ansible roles folder.
+3. Update the variables inside *<path-to-dir>/roles/kubernetes-setup/defaults/main.yml* accordingly.
+4. Update the hosts to multi-groups specified in the Ansible inventory file inside *kubernetes-setup.yml*.
+5. Install the required Ansible collection:  
+`ansible-galaxy install -r <path-to-dir>/roles/kubernetes-setup/requirements.yml`
+7. Execute the role:  
+`ansible-playbook kubernetes-setup.yml`
   
   
 ### kubernetes-cluster-rolling-updates  
@@ -28,3 +38,9 @@ Master node(s) are updated first, then followed by Worker node(s).
 Only 1 node will be down each time for updates.  
 Node which is currently upgrading, will be first drained, followed by the Kubernetes components updates.  
 This method will ensure that your deployments will not be fully affected/down (provided there are >= 2 worker nodes).  
+#### Usage:  
+1. Download both *kubernetes-cluster-rolling-updates.yml* file and *kubernetes-cluster-rolling-updates* directory to your Ansible server.
+2. Move *kubernetes-cluster-rolling-updates* directory to Ansible roles folder.
+3. Update the variables inside *<path-to-dir>/roles/kubernetes-cluster-rolling-updates/defaults/main.yml* accordingly.
+4. Update the hosts to multi-groups specified in the Ansible inventory file inside *kubernetes-cluster-rolling-updates.yml*.
+5. Execute the role: `ansible-playbook kubernetes-cluster-rolling-updates.yml`
