@@ -1,3 +1,5 @@
+![GitHub](https://img.shields.io/github/license/d3athkai/Ansible-Kubernetes?style=plastic) ![GitHub](https://img.shields.io/badge/Python-2.7+-green?style=plastic) ![GitHub](https://img.shields.io/badge/Ansible-2.9+-blue?style=plastic)
+
 # Prerequisite
 * Ansible Server to run the role(s)
 * Master node and Workers nodes installed with Ubuntu 20 (focal)
