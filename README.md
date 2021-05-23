@@ -1,7 +1,10 @@
-![GitHub](https://img.shields.io/github/license/d3athkai/Ansible-Kubernetes?style=plastic) ![GitHub](https://img.shields.io/badge/Python-2.7+-green?style=plastic) ![GitHub](https://img.shields.io/badge/Ansible-2.9+-blue?style=plastic)
+![GitHub](https://img.shields.io/github/license/d3athkai/Ansible-Kubernetes?style=plastic) ![GitHub](https://img.shields.io/badge/Python-2.7+-green?style=plastic) ![GitHub](https://img.shields.io/badge/Ansible-2.9+-blue?style=plastic) ![GitHub](https://img.shields.io/badge/Kubernetes-1.19%2B-yellow?style=plastic)
 
 # Ansible - Kubernetes
-
+  
+## NOTE
+Dockker will not be supported because Kubernetes is deprecating Docker as a container runtime after v.20  in favor of runtimes that use the Container Runtime Interface (CRI) created for Kubernetes (https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/). Docker runtime support is currently planned for removal in the 1.22 release in late 2021.  
+  
 ## Prerequisite
 * Ansible Server to run the role(s)
 * Master node and Workers nodes installed with Ubuntu 20 (focal)
