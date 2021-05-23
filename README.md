@@ -1,6 +1,8 @@
 ![GitHub](https://img.shields.io/github/license/d3athkai/Ansible-Kubernetes?style=plastic) ![GitHub](https://img.shields.io/badge/Python-2.7+-green?style=plastic) ![GitHub](https://img.shields.io/badge/Ansible-2.9+-blue?style=plastic)
 
-# Prerequisite
+# Ansible - Kubernetes
+
+## Prerequisite
 * Ansible Server to run the role(s)
 * Master node and Workers nodes installed with Ubuntu 20 (focal)
 * Full network connectivity between the Ansible Server, Master node and Workers nodes
@@ -18,7 +20,7 @@ k8smaster
 k8workers  
 ```
   
-# Ansible Roles
+## Ansible Roles
 There are currently **2** roles available:  
   
  ### kubernetes-setup
