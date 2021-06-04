@@ -28,6 +28,7 @@
       owner: "{{ kubernetes_user }}"
       group: "{{ kubernetes_group }}"
       remote_src: yes
+      mode: preserve
 
   # https://www.weave.works/docs/net/latest/kubernetes/kube-addon/#install
   - name: Deploy Weave Net Pod network
