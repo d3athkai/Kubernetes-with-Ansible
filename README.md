@@ -1,4 +1,4 @@
-![GitHub](https://img.shields.io/github/license/d3athkai/Ansible-Kubernetes?style=plastic) ![GitHub](https://img.shields.io/badge/Python-2.7+-green?style=plastic) ![GitHub](https://img.shields.io/badge/Ansible-2.9+-blue?style=plastic) ![GitHub](https://img.shields.io/badge/Kubernetes-1.19%2B-yellow?style=plastic)
+[![Ansible](https://img.shields.io/badge/Ansible-000000?style=plastic)](#) [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=plastic)](#)  
 
 # Ansible - Kubernetes
   
