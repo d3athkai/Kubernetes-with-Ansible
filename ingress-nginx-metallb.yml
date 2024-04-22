@@ -1,0 +1,15 @@
+---
+###
+###
+# Nginx Ingress Controller and MetalLB for Kubernetes Cluster
+#
+# Changelogs:
+# - v1: 22/04/2024 - initial release
+###
+###
+- name: Setup Nginx Ingress Controller and MetalLB
+  hosts: k8smaster
+  become: yes
+  become_user: root
+  roles:
+  - ingress-nginx-metallb
