@@ -1,0 +1,13 @@
+---
+# defaults file for kubernetes-setup
+
+# NGINX Ingress Controller Settings
+# Latest NGINX Ingress Controller version: https://github.com/kubernetes/ingress-nginx/releases
+nginx_controller_enabled: true
+nginx_controller_version: 1.10.0  # Format: W.XY.Z
+
+# MetalLB Settings
+# Latest MetalLB version: https://metallb.universe.tf/release-notes
+metallb_enabled: true
+metallb_version: 0.14.5 # Format: W.XY.Z
+metallb_ip_address_pool: 192.168.27.200-192.168.27.210  # Format: xxx.xxx.xxx.xxx-yyy.yyy.yyy.yyy

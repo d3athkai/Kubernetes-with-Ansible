@@ -1,0 +1,45 @@
+---
+  ###
+  ###
+  # DEPLOY NGINX INGRESS CONTROLLER: https://github.com/kubernetes/ingress-nginx
+  ###
+  ###
+  - name: Download NGINX Ingress Controller deployment
+    ansible.builtin.get_url:
+      url: "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v{{ nginx_controller_version }}/deploy/static/provider/baremetal/deploy.yaml"
+      dest: /tmp/ingress-nginx.yaml
+      force: true
+      owner: root
+      group: root
+      mode: '644'
+
+  - name: Update NodePort for HTTP
+    ansible.builtin.lineinfile:
+      path: /tmp/ingress-nginx.yaml
+      insertafter: 'targetPort: http$'
+      line: '    nodePort: 30080'
+      state: present
+
+  - name: Update NodePort for HTTPS
+    ansible.builtin.lineinfile:
+      path: /tmp/ingress-nginx.yaml
+      insertafter: 'targetPort: https$'
+      line: '    nodePort: 30443'
+      state: present
+
+  - name: Deploy NGINX Ingress Controller
+    ansible.builtin.command: "kubectl apply -f /tmp/ingress-nginx.yaml"
+
+  - name: Scale NGINX Ingress Controller deployment to 2
+    ansible.builtin.command: "kubectl scale --replicas=2 deployment/ingress-nginx-controller -n ingress-nginx"
+
+  - name: Waiting for NGINX Ingress Controller pods to be ready...
+    ansible.builtin.pause:
+      seconds: 50
+
+  - name: Get NGINX Ingress Controller pods
+    ansible.builtin.command: "kubectl get pods -n ingress-nginx"
+    register: nginx_ingress_controller
+
+  - name: Display NGINX Ingress Controller pods
+    ansible.builtin.debug: msg="{{ nginx_ingress_controller.stdout_lines }}"
