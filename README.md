@@ -4,8 +4,8 @@
   
 # Ansible - Kubernetes
   
-## NOTE
-Dockker will not be supported because Kubernetes is deprecating Docker as a container runtime after v.20  in favor of runtimes that use the Container Runtime Interface (CRI) created for Kubernetes (https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/). Docker runtime support is currently planned for removal in the 1.22 release in late 2021.  
+## Introduction
+The main goal of this repo is to help setup and manage your Kubernetes Cluster using Ansible.
   
 ## Prerequisite
 * Ansible Server to run the role(s)
