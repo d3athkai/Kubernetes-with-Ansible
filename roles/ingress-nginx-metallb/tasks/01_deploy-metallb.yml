@@ -1,0 +1,54 @@
+---
+  ###
+  ###
+  # DEPLOY METALLB
+  ###
+  ###
+  # https://metallb.universe.tf/installation/#installation-by-manifest
+  - name: Deploy MetalLB
+    ansible.builtin.command: "kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v{{ metallb_version }}/config/manifests/metallb-frr.yaml"
+
+  - name: Waiting for MetalLB pods to be ready...
+    ansible.builtin.pause:
+      seconds: 60
+
+  - name: Get MetalLB pods
+    ansible.builtin.command: "kubectl get pods -n metallb-system"
+    register: metallb_pods_1
+
+  - name: Display MetalLB pods
+    ansible.builtin.debug: msg="{{ metallb_pods_1.stdout_lines }}"
+
+
+  - name: Create /tmp/metallb-ip.yml
+    ansible.builtin.template:
+      src: metallb-ip.yml.j2
+      dest: /tmp/metallb-ip.yml
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Configure IP Address Pool for MetalLB
+    ansible.builtin.command: "kubectl apply -f /tmp/metallb-ip.yml"
+
+  - name: Get MetalLB IP Address Pool
+    ansible.builtin.command: "kubectl get IPAddressPool -n metallb-system"
+    register: metallb_pool
+
+  - name: Display MetalLB IP Address Pool
+    ansible.builtin.debug: msg="{{ metallb_pool.stdout_lines }}"
+
+
+  - name: Restart MetalLB Controller
+    ansible.builtin.command: "kubectl rollout restart deployment controller -n metallb-system"
+
+  - name: Waiting for MetalLB pods to be ready...
+    ansible.builtin.pause:
+      seconds: 20
+
+  - name: Get MetalLB pods
+    ansible.builtin.command: "kubectl get pods -n metallb-system"
+    register: metallb_pods_2
+
+  - name: Display MetalLB pods
+    ansible.builtin.debug: msg="{{ metallb_pods_2.stdout_lines }}"

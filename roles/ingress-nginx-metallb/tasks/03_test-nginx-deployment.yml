@@ -1,0 +1,102 @@
+---
+  ###
+  ###
+  # TEST NGINX DEPLOYMENT
+  ###
+  ###
+  - name: Create /tmp/nginx-deployment.yml
+    ansible.builtin.template:
+      src: nginx-deployment.yml.j2
+      dest: /tmp/nginx-deployment.yml
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Create NGINX Deployment and Service
+    ansible.builtin.command: "kubectl apply -f /tmp/nginx-deployment.yml"
+
+  - name: Waiting for NGINX Deployment pods to be ready...
+    ansible.builtin.pause:
+      seconds: 5
+
+
+  # When NGINX Ingress Controller is deployed, apply the ingress
+  - block:
+    - name: Create /tmp/nginx-ingress.yml
+      ansible.builtin.template:
+        src: nginx-ingress.yml.j2
+        dest: /tmp/nginx-ingress.yml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Create NGINX ingress
+      ansible.builtin.command: "kubectl apply -f /tmp/nginx-ingress.yml"
+
+    - name: Waiting for NGINX ingress to be ready...
+      ansible.builtin.pause:
+        seconds: 5
+
+    when:
+    - nginx_controller_enabled | bool == true
+
+  # When both NGINX Ingress Controller AND MetalLB are deployed, test the NGINX Deployment URL Port 80
+  - block:
+    - name: Get output from curl -v {{ test_nginx_deployment_url }}
+      ansible.builtin.command: "curl -v {{ test_nginx_deployment_url }}"
+      register: nginx_ingress_curl
+
+    - name: Display output from curl -v {{ test_nginx_deployment_url }}
+      ansible.builtin.debug: msg="{{ nginx_ingress_curl.stdout_lines }}"
+
+    when:
+    - metallb_enabled | bool == true
+    - nginx_controller_enabled | bool == true
+
+  # When only NGINX Ingress Controller is deployed, test the NGINX Deployment URL Port 30080 (NodePort)
+  - block:
+    - name: Get output from curl -v {{ test_nginx_deployment_url }}:30080
+      ansible.builtin.command: "curl -v {{ test_nginx_deployment_url }}:30080"
+      register: nginx_ingress_curl
+
+    - name: Display output from curl -v {{ test_nginx_deployment_url }}:30080
+      ansible.builtin.debug: msg="{{ nginx_ingress_curl.stdout_lines }}"
+
+    when:
+    - metallb_enabled | bool == false
+    - nginx_controller_enabled | bool == true
+
+
+  # When only MetalLB is deployed, test the NGINX Deployment URL Port 80
+  - block:
+    - name: Create /tmp/nginx-lb.yml
+      ansible.builtin.template:
+        src: nginx-lb.yml.j2
+        dest: /tmp/nginx-lb.yml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Create LoadBalancer service
+      ansible.builtin.command: "kubectl apply -f /tmp/nginx-lb.yml"
+
+    - name: Waiting for LoadBalancer service to be ready...
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Get assigned IP from LoadBalancer
+      ansible.builtin.shell: "kubectl get service | grep -w nginx-svc | awk '{print $4}'"
+      args:
+        executable: /bin/bash
+      register: assigned_ip
+
+    - name: Get output from curl -v {{ assigned_ip.stdout }}
+      ansible.builtin.command: "curl -v {{ assigned_ip.stdout }}"
+      register: nginx_lb_curl
+
+    - name: Display output from curl -v {{ assigned_ip.stdout }}
+      ansible.builtin.debug: msg="{{ nginx_lb_curl.stdout_lines }}"
+
+    when:
+    - metallb_enabled | bool == true
+    - nginx_controller_enabled | bool == false
