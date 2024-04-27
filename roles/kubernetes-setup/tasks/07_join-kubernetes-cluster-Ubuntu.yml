@@ -29,6 +29,11 @@
     ansible.builtin.pause:
       seconds: 5
 
+  - name: Label the roles of all Worker nodes
+    ansible.builtin.command: "kubectl label node {{ ansible_hostname }} node-role.kubernetes.io/{{ ansible_hostname }}={{ ansible_hostname }}"
+    delegate_to: "{{ groups['k8s-master'][0] }}"
+    when: "ansible_inv_group_for_workers in group_names"
+
   - name: Get all nodes
     ansible.builtin.command: "kubectl get nodes"
     register: kubectl_nodes
