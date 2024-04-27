@@ -15,4 +15,5 @@ nginx_controller_version: 1.10.1  # Format: W.XY.Z
 # Test NGINX Deployment Settings
 # Latest NGINX Ingress Controller version: https://github.com/kubernetes/ingress-nginx/releases
 test_nginx_deployment_enabled: true
+delete_nginx_deployment_after_test: true
 test_nginx_deployment_url: test-nginx.example.com

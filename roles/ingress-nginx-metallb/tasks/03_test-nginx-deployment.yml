@@ -100,3 +100,42 @@
     when:
     - metallb_enabled | bool == true
     - nginx_controller_enabled | bool == false
+
+
+  - block:
+    - name: Undeploy /tmp/nginx-ingress.yml
+      ansible.builtin.command: "kubectl delete -f /tmp/nginx-ingress.yml"
+
+    - name: Remove /tmp/nginx-ingress.yml
+      ansible.builtin.file:
+        path: /tmp/nginx-ingress.yml
+        state: absent
+
+    when:
+    - delete_nginx_deployment_after_test | bool == true
+    - nginx_controller_enabled | bool == true
+
+  - block:
+    - name: Undeploy /tmp/nginx-lb.yml
+      ansible.builtin.command: "kubectl delete -f /tmp/nginx-lb.yml"
+
+    - name: Remove /tmp/nginx-lb.yml
+      ansible.builtin.file:
+        path: /tmp/nginx-lb.yml
+        state: absent
+
+    when:
+    - delete_nginx_deployment_after_test | bool == true
+    - metallb_enabled | bool == true
+    - nginx_controller_enabled | bool == false
+
+  - block:
+    - name: Undeploy /tmp/nginx-deployment.yml
+      ansible.builtin.command: "kubectl delete -f /tmp/nginx-deployment.yml"
+
+    - name: Remove /tmp/nginx-deployment.yml
+      ansible.builtin.file:
+        path: /tmp/nginx-deployment.yml
+        state: absent
+
+    when: delete_nginx_deployment_after_test | bool == true
