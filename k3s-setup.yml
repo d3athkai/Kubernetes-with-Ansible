@@ -1,0 +1,15 @@
+---
+###
+###
+# Kubernetes Cluster setup with K3s for Ubuntu
+#
+# Changelogs:
+# - v1: 28/04/2024 - initial release
+###
+###
+- name: Kubernetes Cluster bootstrapping with kubeadm for Ubuntu
+  hosts: k3s
+  become: yes
+  become_user: root
+  roles:
+  - k3s-setup
