@@ -12,12 +12,12 @@
   - name: Register join command
     ansible.builtin.add_host:
       name: "JOIN_K8S_CLUSTER"
-      join: "{{ join_command.stdout }}"
+      join_command: "{{ join_command.stdout }}"
     when: "ansible_inv_group_for_master in group_names"
 
 
   - name: Join Kubernetes Cluster
-    shell: "{{ hostvars['JOIN_K8S_CLUSTER']['join'] }} >> node_joined.txt"
+    shell: "{{ hostvars['JOIN_K8S_CLUSTER']['join_command'] }} >> node_joined.txt"
     args:
       chdir: $HOME
       creates: node_joined.txt
@@ -27,7 +27,7 @@
 
   - name: Waiting for node(s) to get ready...
     ansible.builtin.pause:
-      seconds: 5
+      seconds: 80
 
   - name: Label the roles of all Worker nodes
     ansible.builtin.command: "kubectl label node {{ ansible_hostname }} node-role.kubernetes.io/{{ ansible_hostname }}={{ ansible_hostname }}"

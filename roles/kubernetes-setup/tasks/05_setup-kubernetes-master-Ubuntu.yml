@@ -32,3 +32,17 @@
       group: root
       remote_src: yes
       mode: preserve
+
+
+  - name: Configure kubectl autocompletion in /root/.bashrc
+    ansible.builtin.blockinfile:
+      path: /root/.bashrc
+      create: true
+      insertafter: "EOF"
+      block: |
+        source <(kubectl completion bash)
+        alias k="kubectl"
+        complete -o default -F __start_kubectl k
+      owner: root
+      group: root
+      mode: '0644'

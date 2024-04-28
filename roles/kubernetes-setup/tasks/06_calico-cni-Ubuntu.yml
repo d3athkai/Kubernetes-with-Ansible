@@ -49,7 +49,7 @@
 
     - name: Waiting for Calico pods to be ready...
       ansible.builtin.pause:
-        seconds: 60
+        seconds: 80
 
     - name: Get Calico pods
       ansible.builtin.command: "kubectl get pods -n calico-system"
