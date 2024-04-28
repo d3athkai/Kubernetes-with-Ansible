@@ -1,0 +1,24 @@
+---
+# task file for k3s-setup
+
+- block:
+  # 1. Disable Swap
+  - include_tasks: 01_disable-swap-{{ ansible_distribution }}.yml
+
+  # 2. Configure IP Forwarding
+  - include_tasks: 02_configure-ip-forwarding-{{ ansible_distribution }}.yml
+
+  # 3. Configure Firewall
+  - include_tasks: 03_configure-firewall-{{ ansible_distribution }}.yml
+
+  # 4. Install K3s
+  - include_tasks: 04_setup-k3s-master-{{ ansible_distribution }}.yml
+    when: "ansible_inv_group_for_master in group_names"
+
+  # 5. Install Calico Network Plugin for Pod Networking
+  - include_tasks: 05_calico-cni-{{ ansible_distribution }}.yml
+
+  # 6. Join Worker nodes to the Kubernetes Cluster
+  - include_tasks: 06_join-k3s-cluster-{{ ansible_distribution }}.yml
+
+  when: ansible_distribution=="Ubuntu"

@@ -1,0 +1,15 @@
+---
+  ###
+  ###
+  # SETUP CONTAINERD: https://kubernetes.io/docs/setup/production-environment/container-runtimes/#containerd
+  ###
+  ###
+  - name: Ensure IP Forwarding is enabled
+    ansible.builtin.lineinfile:
+      path: /etc/sysctl.conf
+      regexp: '^net.ipv4.ip_forward'
+      line: net.ipv4.ip_forward = 1
+      state: present
+
+  - name: Apply IP Forwarding
+    ansible.builtin.command: "sysctl --system"

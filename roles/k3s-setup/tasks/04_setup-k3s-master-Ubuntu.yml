@@ -1,0 +1,55 @@
+---
+  ###
+  ###
+  # INITIALIZE KUBERNETES CLUSTER: https://docs.k3s.io/installation/configuration#configuration-with-install-script
+  ###
+  ###
+  - name: Install curl and bash-completion
+    ansible.builtin.apt:
+      name:
+      - curl
+      - bash-completion
+      state: latest
+      update_cache: yes
+      autoclean: yes
+
+
+  - name: Remove any older cluster initialization file
+    ansible.builtin.file:
+      path: $HOME/cluster_initialized.txt
+      state: absent
+
+  - name: Initialize the cluster
+    ansible.builtin.shell: "curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v{{ k3s_version }}+k3s1 INSTALL_K3S_EXEC=\"--write-kubeconfig-mode '0644' --flannel-backend none --disable-network-policy --cluster-cidr {{ k3s_pod_network_cidr }} --disable local-storage --disable servicelb --disable traefik --disable metrics-server\" sh -s - >> cluster_initialized.txt"
+    args:
+      chdir: $HOME
+      creates: cluster_initialized.txt
+      executable: /bin/bash
+
+  - name: Stop deployment of pods on Master node
+    ansible.builtin.command: "kubectl taint node {{ ansible_hostname }} node-role.kubernetes.io/control-plane:NoSchedule"
+
+
+  # https://docs.k3s.io/cluster-access
+  - name: Copy k3s.yaml to $HOME/.kube/config
+    ansible.builtin.copy:
+      src: /etc/rancher/k3s/k3s.yaml
+      dest: $HOME/.kube/config
+      owner: root
+      group: root
+      remote_src: yes
+      mode: preserve
+
+
+  - name: Configure kubectl autocompletion in /root/.bashrc
+    ansible.builtin.blockinfile:
+      path: /root/.bashrc
+      create: true
+      insertafter: "EOF"
+      block: |
+        source <(kubectl completion bash)
+        alias k="kubectl"
+        complete -o default -F __start_kubectl k
+      owner: root
+      group: root
+      mode: '0644'
