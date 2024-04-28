@@ -2,7 +2,7 @@
 [![Ubuntu+](https://img.shields.io/badge/Ubuntu-DD4814?style=plastic)](#)  
 [![Ansible](https://img.shields.io/badge/Ansible-131211?style=plastic)](#) [![Python 3](https://img.shields.io/badge/Python-3-3673A5?style=plastic)](#)   [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=plastic)](#)  
   
-# Kubernetes Cluster with Ansible
+# Kubernetes with Ansible
   
 ## Introduction
 The main goal of this repo is to help with the setup and management of your Kubernetes Cluster using Ansible.
