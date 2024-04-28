@@ -9,7 +9,7 @@
     register: join_token
     when: "ansible_inv_group_for_master in group_names"
 
-  - name: Register join command
+  - name: Register Master Node Ip and join token
     ansible.builtin.add_host:
       name: "JOIN_K3S_CLUSTER"
       master_ip: "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
