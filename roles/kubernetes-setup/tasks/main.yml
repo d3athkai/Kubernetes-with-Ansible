@@ -3,25 +3,25 @@
 
 - block:
   # 1. Disable Swap
-  - include_tasks: 01_disable-swap-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks: 01_disable-swap-{{ ansible_distribution }}.yml
 
   # 2. Configure Firewall
-  - include_tasks: 02_configure-firewall-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks: 02_configure-firewall-{{ ansible_distribution }}.yml
 
   # 3. Install Containerd
-  - include_tasks: 03_install-containerd-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks: 03_install-containerd-{{ ansible_distribution }}.yml
 
   # 4. Install Kubernetes
-  - include_tasks: 04_install-kubernetes-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks: 04_install-kubernetes-{{ ansible_distribution }}.yml
 
   # 5. Initialize Kubeadm On Master Node to Setup Control Plane
-  - include_tasks: 05_setup-kubernetes-master-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks: 05_setup-kubernetes-master-{{ ansible_distribution }}.yml
     when: "ansible_inv_group_for_master in group_names"
 
   # 6. Install Calico Network Plugin for Pod Networking
-  - include_tasks: 06_calico-cni-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks: 06_calico-cni-{{ ansible_distribution }}.yml
 
   # 7. Join Worker nodes to the Kubernetes Cluster
-  - include_tasks: 07_join-kubernetes-cluster-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks: 07_join-kubernetes-cluster-{{ ansible_distribution }}.yml
 
   when: ansible_distribution=="Ubuntu"
