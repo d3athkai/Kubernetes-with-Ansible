@@ -1,0 +1,61 @@
+---
+  ###
+  ###
+  # INSTALL CALICO CNI
+  ###
+  ###
+  # https://docs.tigera.io/calico/latest/getting-started/kubernetes/requirements#network-requirements
+  - name: Allow inbound port of 179/tcp
+    community.general.ufw:
+      rule: allow
+      port: 179
+      proto: tcp
+      comment: Calico networking (BGP)
+
+  - name: Allow inbound port of 5473/tcp
+    community.general.ufw:
+      rule: allow
+      port: 5473
+      proto: tcp
+      comment: Calico networking with Typha enabled
+
+
+  # https://docs.tigera.io/calico/latest/getting-started/kubernetes/quickstart#install-calico
+  - block:
+    - name: Install the Tigera Calico operator
+      ansible.builtin.command: "kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v{{ calico_version }}/manifests/tigera-operator.yaml"
+
+    - name: Waiting for Tigera Calico operator pods to be ready...
+      ansible.builtin.pause:
+        seconds: 30
+
+    - name: Download the Tigera Calico custom resource definitions
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/projectcalico/calico/v{{ calico_version }}/manifests/custom-resources.yaml"
+        dest: /tmp/calico_crd.yaml
+        force: true
+        owner: root
+        group: root
+        mode: '644'
+
+    - name: Update CIDR in the Tigera Calico custom resource definitions
+      ansible.builtin.replace:
+        path: /tmp/calico_crd.yaml
+        regexp: "cidr.*"
+        replace: "cidr: {{ kubernetes_pod_network_cidr }}"
+
+    - name: Install the Tigera Calico custom resource definitions
+      ansible.builtin.command: kubectl apply -f /tmp/calico_crd.yaml
+
+    - name: Waiting for Calico pods to be ready...
+      ansible.builtin.pause:
+        seconds: 80
+
+    - name: Get Calico pods
+      ansible.builtin.command: "kubectl get pods -n calico-system"
+      register: calico
+
+    - name: Display Calico pods
+      ansible.builtin.debug: msg="{{ calico.stdout_lines }}"
+
+    when: "ansible_inv_group_for_master in group_names"

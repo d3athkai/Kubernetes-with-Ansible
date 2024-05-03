@@ -1,0 +1,42 @@
+---
+  ###
+  ###
+  # DISABLE SWAP
+  ###
+  ###
+  - name: Disable Swap
+    ansible.builtin.command: "swapoff -a"
+
+  - name: Remove the Swap file
+    ansible.builtin.file:
+      path: /swap.img
+      state: absent
+
+  - name: Check if fstab original config file exists?
+    ansible.builtin.stat:
+      path: /etc/fstab.orig
+    register: fstab_exists
+
+  - name: Make a backup of fstab config file if original config file not exists
+    ansible.builtin.copy:
+      remote_src: yes
+      src: /etc/fstab
+      dest: /etc/fstab.orig
+      force: no
+    when: fstab_exists.stat.exists | bool == false
+
+  - name: Remove Swap entry from /etc/fstab
+    ansible.builtin.lineinfile:
+      path: /etc/fstab
+      regexp: 'swap'
+      state: absent
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Get Swap value
+    ansible.builtin.shell: "free -h | grep -w Swap"
+    register: is_swap_disabled
+
+  - name: Verify Swap is disabled
+    ansible.builtin.debug: msg="{{ is_swap_disabled.stdout }}"

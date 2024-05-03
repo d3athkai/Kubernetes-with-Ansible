@@ -1,0 +1,44 @@
+---
+  ###
+  ###
+  # JOIN KUBERNETES CLUSTER
+  ###
+  ###
+  - name: Get the join command from Master node
+    ansible.builtin.command: kubeadm token create --print-join-command
+    register: join_command
+    when: "ansible_inv_group_for_master in group_names"
+
+  - name: Register join command
+    ansible.builtin.add_host:
+      name: "JOIN_K8S_CLUSTER"
+      join_command: "{{ join_command.stdout }}"
+    when: "ansible_inv_group_for_master in group_names"
+
+
+  - name: Join Kubernetes Cluster
+    shell: "{{ hostvars['JOIN_K8S_CLUSTER']['join_command'] }} >> node_joined.txt"
+    args:
+      chdir: $HOME
+      creates: node_joined.txt
+      executable: /bin/bash
+    when: "ansible_inv_group_for_workers in group_names"
+
+
+  - name: Waiting for node(s) to get ready...
+    ansible.builtin.pause:
+      seconds: 80
+
+  - name: Label the roles of all Worker nodes
+    ansible.builtin.command: "kubectl label node {{ ansible_hostname }} node-role.kubernetes.io/{{ ansible_hostname }}={{ ansible_hostname }}"
+    delegate_to: "{{ groups['k8s-master'][0] }}"
+    when: "ansible_inv_group_for_workers in group_names"
+
+  - name: Get all nodes
+    ansible.builtin.command: "kubectl get nodes"
+    register: kubectl_nodes
+    when: "ansible_inv_group_for_master in group_names"
+
+  - name: Display all nodes
+    ansible.builtin.debug: msg="{{ kubectl_nodes.stdout_lines }}"
+    when: "ansible_inv_group_for_master in group_names"

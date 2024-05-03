@@ -1,0 +1,48 @@
+---
+  ###
+  ###
+  # INITIALIZE KUBERNETES CLUSTER: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
+  ###
+  ###
+  - name: Remove any older cluster initialization file
+    ansible.builtin.file:
+      path: $HOME/cluster_initialized.txt
+      state: absent
+
+  - name: Initialize the cluster
+    ansible.builtin.shell: "kubeadm init --pod-network-cidr={{ kubernetes_pod_network_cidr }} --apiserver-advertise-address={{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }} --apiserver-bind-port={{ kubernetes_api_server_port }} --apiserver-cert-extra-sans={{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }} --node-name={{ ansible_hostname }} >> cluster_initialized.txt"
+    args:
+      chdir: $HOME
+      creates: cluster_initialized.txt
+      executable: /bin/bash
+
+  - name: Create $HOME/.kube directory
+    ansible.builtin.file:
+      path: $HOME/.kube
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: Copy admin.conf to $HOME/.kube/config
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: $HOME/.kube/config
+      owner: root
+      group: root
+      remote_src: yes
+      mode: preserve
+
+
+  - name: Configure kubectl autocompletion in /root/.bashrc
+    ansible.builtin.blockinfile:
+      path: /root/.bashrc
+      create: true
+      insertafter: "EOF"
+      block: |
+        source <(kubectl completion bash)
+        alias k="kubectl"
+        complete -o default -F __start_kubectl k
+      owner: root
+      group: root
+      mode: '0644'
