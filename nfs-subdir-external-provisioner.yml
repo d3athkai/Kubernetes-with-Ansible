@@ -1,0 +1,15 @@
+---
+###
+###
+# Kubernetes NFS Subdir External Provisioner
+#
+# Changelogs:
+# - v1: 03/05/2024 - initial release
+###
+###
+- name: Kubernetes NFS Subdir External Provisioner
+  hosts: k8s-nfs
+  become: yes
+  become_user: root
+  roles:
+  - nfs-subdir-external-provisioner
