@@ -1,0 +1,43 @@
+---
+  ###
+  ###
+  # NFS SERVER SETUP
+  ###
+  ###
+  - name: Install NFS Server
+    ansible.builtin.apt:
+      name:
+      - nfs-common
+      - nfs-kernel-server
+      state: present
+      autoclean: yes
+ 
+  - name: Create NFS Share directory
+    ansible.builtin.file:
+      path: "{{ nfs_share }}"
+      state: directory
+      owner: root
+      group: root
+      mode: '0777'
+
+  - name: Configure NFS Share
+    ansible.builtin.lineinfile:
+      path: /etc/exports
+      regexp: "^{{ nfs_share }}.*"
+      line: "{{ nfs_share }} {{ nfs_cidr_whitelist }}(rw,sync,no_root_squash,no_subtree_check)"
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Restart NFS Server service
+    ansible.builtin.systemd_service:
+      state: restarted
+      name: nfs-kernel-server
+      enabled: true
+
+  - name: Verify NFS Share
+    ansible.builtin.command: "exportfs -v"
+    register: exportfs
+
+  - name: Display NFS Share
+    ansible.builtin.debug: msg="{{ exportfs.stdout_lines }}"

@@ -1,0 +1,35 @@
+---
+  ###
+  ###
+  # TEST NFS SHARE
+  ###
+  ###
+  - name: Register NFS Server IP
+    ansible.builtin.add_host:
+      name: "NFS_SERVER"
+      nfs_ip: "{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}"
+    when: "ansible_inv_group_for_nfs_server in group_names"
+
+
+  - block:
+    - name: Install NFS Utility
+      ansible.builtin.apt:
+        name:
+        - nfs-common
+        state: present
+        autoclean: yes
+
+    - name: Test Mount {{ nfs_share }} to /mnt
+      ansible.builtin.command: "mount -t nfs -v {{ hostvars['NFS_SERVER']['nfs_ip'] }}:{{ nfs_share }} /mnt"
+
+    - name: Verify NFS Mount
+      ansible.builtin.command: "df -h /mnt"
+      register: nfs_mount
+
+    - name: Display NFS Mount
+      ansible.builtin.debug: msg="{{ nfs_mount.stdout_lines }}"
+
+    - name: Verify NFS Mount
+      ansible.builtin.command: "umount -f /mnt"
+
+    when: "ansible_inv_group_for_workers in group_names"

@@ -1,0 +1,19 @@
+---
+# defaults file for nfs-subdir-external-provisioner
+
+# Ansible Inventory group for K8S Master node, K8S Workers nodes and NFS Server
+ansible_inv_group_for_master: k8s-master
+ansible_inv_group_for_workers: k8s-worker
+ansible_inv_group_for_nfs_server: nfs-server
+
+# NFS Server Settings
+nfs_share: /opt/kubernetes_apps
+nfs_cidr_whitelist: 192.168.0.0/16 # Format: X.X.X.X or X.X.X.X/YY
+nfs_test_share: true  # true / false
+
+# Firewall Configurations
+ipv6_enabled: false
+firewall_enabled: true
+
+# NFS Subdir External Provisioner Settings
+nfssc_namespaces: ["ns1", "ns2", "ns3"] # Format: ["ns1", "ns2", "ns?"]

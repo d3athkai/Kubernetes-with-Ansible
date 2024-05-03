@@ -1,0 +1,68 @@
+---
+  ###
+  ###
+  # DEPLOY NFS PROVISIONER
+  ###
+  ###
+  - name: Install Python 3 pip
+    ansible.builtin.apt:
+      name:
+      - python3-pip
+      state: present
+      autoclean: yes
+
+  - name: Install pre-requisites for kubernetes.core.k8s module
+    ansible.builtin.pip:
+      name:
+      - pyyaml
+      - kubernetes
+      state: present
+
+  - name: Create namespace(s) in Kubernetes Cluster
+    kubernetes.core.k8s:
+      name: "{{ item }}"
+      api_version: v1
+      kind: Namespace
+      state: present
+    loop: "{{ nfssc_namespaces }}"
+
+
+  - name: Install tar, zip, unzip
+    ansible.builtin.apt:
+      name:
+      - tar
+      - zip
+      - unzip
+      state: present
+      autoclean: yes
+
+  - name: Download NFS-Provisioner zip
+    ansible.builtin.get_url:
+      url: https://github.com/d3athkai/Kubernetes-NFS-Provisioner/archive/refs/heads/main.zip
+      dest: /tmp/nfs-provisioner.zip
+      force: true
+      mode: '0644'
+
+  - name: Unzip NFS-Provisioner zip
+    ansible.builtin.unarchive:
+      src: /tmp/nfs-provisioner.zip
+      dest: /tmp
+      remote_src: yes
+
+
+  - name: Apply NFS-Provisioner Storage Class
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/Kubernetes-NFS-Provisioner-main/nfs-provisioner-class.yaml
+
+  - name: Verify NFS-Provisioner Storage Class
+    ansible.builtin.command: "kubectl get storageclass"
+    register: nfs_storageclass
+
+  - name: Display NFS-Provisioner Storage Class
+    ansible.builtin.debug: msg="{{ nfs_storageclass.stdout_lines }}"
+
+
+  - name: NFS-Provisioner RBAC & Deployment
+    ansible.builtin.include_tasks: 04a_deploy-nfs-provisioner-{{ ansible_distribution }}.yml
+    loop: "{{ nfssc_namespaces }}"

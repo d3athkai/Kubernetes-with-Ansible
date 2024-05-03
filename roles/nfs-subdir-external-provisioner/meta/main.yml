@@ -1,0 +1,25 @@
+---
+galaxy_info:
+  author: d3athkai
+  description: NFS Subdir External Provisioner Storage Class Setup
+  company: https://github.com/d3athkai
+
+  license: "license (GPLv3)"
+
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+
+  galaxy_tags:
+    - kubernetes
+    - nfs
+    - storage
+
+collections:
+  - community.general
+
+dependencies: []

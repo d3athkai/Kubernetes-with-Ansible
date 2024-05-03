@@ -1,0 +1,51 @@
+---
+  ###
+  ###
+  # DEPLOY NFS PROVISIONER RBAC & DEPLOYMENT
+  ###
+  ###
+  - name: Update namespace to {{ item }}
+    ansible.builtin.lineinfile:
+      path: /tmp/Kubernetes-NFS-Provisioner-main/base/kustomization.yaml
+      regexp: "^namespace.*"
+      line: "namespace: {{ item }}"
+
+  - name: Update NFS Server IP to {{ hostvars['NFS_SERVER']['nfs_ip'] }}
+    ansible.builtin.replace:
+      path: /tmp/Kubernetes-NFS-Provisioner-main/overlays/prod/nfs-provisioner-deployment.yaml
+      regexp: "<NFS_SERVER_IP>"
+      replace: "{{ hostvars['NFS_SERVER']['nfs_ip'] }}"
+
+  - name: Update NFS Share to {{ nfs_share }}
+    ansible.builtin.replace:
+      path: /tmp/Kubernetes-NFS-Provisioner-main/overlays/prod/nfs-provisioner-deployment.yaml
+      regexp: "<NFS_SHARE>"
+      replace: "{{ nfs_share }}"
+
+
+  - name: Deploy NFS-Provisioner RBAC & Deployment
+    ansible.builtin.command: "kubectl apply -k /tmp/Kubernetes-NFS-Provisioner-main/overlays/prod"
+
+  - name: Waiting for NFS-Provisioner Deployment to be ready...
+    ansible.builtin.pause:
+      seconds: 10
+
+
+  - name: Test Persistent Volume Claim
+    kubernetes.core.k8s:
+      namespace: "{{ item }}"
+      state: present
+      src: /tmp/Kubernetes-NFS-Provisioner-main/test-claim.yaml
+
+  - name: Verify Persistent Volume Claim
+    ansible.builtin.command: "kubectl get pvc -n {{ item }}"
+    register: nfs_testclaim
+
+  - name: Display Persistent Volume Claim
+    ansible.builtin.debug: msg="{{ nfs_testclaim.stdout_lines }}"
+
+  - name: Delete Persistent Volume Claim
+    kubernetes.core.k8s:
+      namespace: "{{ item }}"
+      state: absent
+      src: /tmp/Kubernetes-NFS-Provisioner-main/test-claim.yaml

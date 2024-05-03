@@ -1,0 +1,86 @@
+---
+  ###
+  ###
+  # CONFIGURE FIREWALL
+  ###
+  ###
+  - name: Disable UFW
+    community.general.ufw:
+      state: enabled
+    when: firewall_enabled | bool == false
+
+
+  - block:
+    - name: Install UFW
+      ansible.builtin.apt:
+        name:
+        - ufw
+        state: present
+        autoclean: yes
+
+    - name: Start and enable UFW service
+      ansible.builtin.systemd:
+        name: ufw
+        state: started
+        enabled: yes
+
+    - name: Check if UFW original config file exists?
+      ansible.builtin.stat:
+        path: /etc/default/ufw.orig
+      register: ufw_conf_exists
+
+    - name: Make a backup of UFW config file if original config file not exists
+      ansible.builtin.copy:
+        remote_src: yes
+        src: /etc/default/ufw
+        dest: /etc/default/ufw.orig
+        force: no
+      when: ufw_conf_exists.stat.exists | bool == false
+
+    - name: Disable IPv6
+      ansible.builtin.replace:
+        path: /etc/default/ufw
+        regexp: "^IPV6.*"
+        replace: "IPV6=no"
+      when: ipv6_enabled | bool == false
+
+    - name: Enable IPv6
+      ansible.builtin.replace:
+        path: /etc/default/ufw
+        regexp: "^IPV6.*"
+        replace: "IPV6=yes"
+      when: ipv6_enabled | bool == true
+
+    - name: Set logging
+      community.general.ufw:
+        logging: 'low'
+
+    - name: Allow all outgoing connections
+      community.general.ufw:
+        direction: outgoing
+        default: allow
+
+    - name: Deny all incoming connections
+      community.general.ufw:
+        direction: incoming
+        default: deny
+
+    - name: Allow ssh
+      community.general.ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+        comment: ssh
+
+    - name: Allow inbound port of 2049/tcp for NFS Share
+      community.general.ufw:
+        rule: allow
+        port: 2049
+        proto: tcp
+        comment: NFS Share
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
+
+    when: firewall_enabled | bool == true

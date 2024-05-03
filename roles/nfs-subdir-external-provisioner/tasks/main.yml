@@ -1,0 +1,21 @@
+---
+# task file for nfs-subdir-external-provisioner
+
+- block:
+  # 1. Setup NFS Server
+  - ansible.builtin.include_tasks: 01_nfs-server-{{ ansible_distribution }}.yml
+    when: "ansible_inv_group_for_nfs_server in group_names"
+
+  # 2. Configure Firewall
+  - ansible.builtin.include_tasks: 02_configure-firewall-{{ ansible_distribution }}.yml
+    when: "ansible_inv_group_for_nfs_server in group_names"
+
+  # 3. Test NFS Share
+  - ansible.builtin.include_tasks: 03_test-nfs-share-{{ ansible_distribution }}.yml
+    when: nfs_test_share | bool == true
+
+  # 4. Deploy NFS Subdir External Provisioner in 1 or more namespaces
+  - ansible.builtin.include_tasks: 04_deploy-nfs-provisioner-{{ ansible_distribution }}.yml
+    when: "ansible_inv_group_for_master in group_names"
+
+  when: ansible_distribution=="Ubuntu"
