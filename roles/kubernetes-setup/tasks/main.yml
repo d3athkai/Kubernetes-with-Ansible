@@ -3,25 +3,61 @@
 
 - block:
   # 1. Disable Swap
-  - ansible.builtin.include_tasks: 01_disable-swap-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks:
+      file: 01_disable-swap-{{ ansible_distribution }}.yml
+      apply:
+        tags: "1"
+    tags: "1"
 
   # 2. Configure Firewall
-  - ansible.builtin.include_tasks: 02_configure-firewall-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks:
+      file: 02_configure-firewall-{{ ansible_distribution }}.yml
+      apply:
+        tags: "72"
+    tags: "2"
 
   # 3. Install Containerd
-  - ansible.builtin.include_tasks: 03_install-containerd-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks:
+      file: 03_install-containerd-{{ ansible_distribution }}.yml
+      apply:
+        tags: "3"
+    tags: "3"
 
   # 4. Install Kubernetes
-  - ansible.builtin.include_tasks: 04_install-kubernetes-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks:
+      file: 04_install-kubernetes-{{ ansible_distribution }}.yml
+      apply:
+        tags: "4"
+    tags: "4"
 
   # 5. Initialize Kubeadm On Master Node to Setup Control Plane
-  - ansible.builtin.include_tasks: 05_setup-kubernetes-master-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks:
+      file: 05_setup-kubernetes-master-{{ ansible_distribution }}.yml
+      apply:
+        tags: "5"
     when: "ansible_inv_group_for_master in group_names"
+    tags: "5"
 
   # 6. Install Calico Network Plugin for Pod Networking
-  - ansible.builtin.include_tasks: 06_calico-cni-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks:
+      file: 06_calico-cni-{{ ansible_distribution }}.yml
+      apply:
+        tags: "6"
+    tags: "6"
 
   # 7. Join Worker nodes to the Kubernetes Cluster
-  - ansible.builtin.include_tasks: 07_join-kubernetes-cluster-{{ ansible_distribution }}.yml
+  - ansible.builtin.include_tasks:
+      file: 07_join-kubernetes-cluster-{{ ansible_distribution }}.yml
+      apply:
+        tags: "7"
+    tags: "7"
+
+  # 8. Install Kubens
+  - ansible.builtin.include_tasks:
+      file: 08_install-kubens-{{ ansible_distribution }}.yml
+      apply:
+        tags: "8"
+    when: kubens_enabled | bool == true
+    tags: "8"
 
   when: ansible_distribution=="Ubuntu"
