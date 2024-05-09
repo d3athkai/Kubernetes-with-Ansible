@@ -2,8 +2,8 @@
 # defaults file for k3s-setup
 
 # Ansible Inventory group for Master node and Workers nodes
-ansible_inv_group_for_master: k3s-master
-ansible_inv_group_for_workers: k3s-worker
+ansible_inv_group_for_master: k8s-master
+ansible_inv_group_for_workers: k8s-worker
 
 # Nodes' Firewall Configurations
 ipv6_enabled: false
@@ -17,3 +17,8 @@ k3s_pod_network_cidr: 172.16.0.0/16
 # Calico Settings
 # Latest Calico version: https://github.com/projectcalico/calico/releases
 calico_version: 3.27.3  # Format: W.XY.Z
+
+# Kubens Settings
+# Latest Kubens version: https://github.com/ahmetb/kubectx/releases
+kubens_enabled: true
+kubens_version: 0.9.5  # Format: X.Y.Z
