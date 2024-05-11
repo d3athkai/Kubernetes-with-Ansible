@@ -1,0 +1,15 @@
+---
+###
+###
+# Kubernetes Tools
+#
+# Changelogs:
+# - v1: 11/05/2024 - initial release
+###
+###
+- name: Kubernetes Tools
+  hosts: k8s-master
+  become: yes
+  become_user: root
+  roles:
+  - kubernetes-tools
