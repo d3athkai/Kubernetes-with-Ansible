@@ -1,0 +1,55 @@
+---
+  ###
+  ###
+  # INSTALL K9S
+  ###
+  ###
+  - name: Download K9s
+    ansible.builtin.get_url:
+      url: "https://github.com/derailed/k9s/releases/download/v{{ k9s_version }}/k9s_Linux_amd64.tar.gz"
+      dest: /tmp/k9s.tar.gz
+      mode: '0640'
+
+  - name: Untar K9s
+    ansible.builtin.unarchive:
+      src: /tmp/k9s.tar.gz
+      dest: /tmp
+      remote_src: true
+
+  - name: Copy K9s to /usr/local/bin
+    ansible.builtin.copy:
+      src: /tmp/k9s
+      dest: /usr/local/bin/k9s
+      owner: root
+      group: root
+      mode: '0755'
+      remote_src: true
+
+
+  - name: Remove LICENSE file in /tmp
+    ansible.builtin.file:
+      path: /tmp/LICENSE
+      state: absent
+
+  - name: Remove README.md file in /tmp
+    ansible.builtin.file:
+      path: /tmp/README.md
+      state: absent
+
+  - name: Remove K9s file in /tmp
+    ansible.builtin.file:
+      path: /tmp/k9s
+      state: absent
+
+  - name: Remove K9s tar file in /tmp
+    ansible.builtin.file:
+      path: /tmp/k9s.tar.gz
+      state: absent
+
+
+  - name: Get K9s version
+    ansible.builtin.command: "k9s version -s"
+    register: k9s_version
+
+  - name: Display K9s version
+    ansible.builtin.debug: msg="{{ k9s_version.stdout_lines }}"
