@@ -52,12 +52,4 @@
         tags: "7"
     tags: "7"
 
-  # 8. Install Kubens
-  - ansible.builtin.include_tasks:
-      file: 08_install-kubens-{{ ansible_distribution }}.yml
-      apply:
-        tags: "8"
-    when: kubens_enabled | bool == true
-    tags: "8"
-
   when: ansible_distribution=="Ubuntu"

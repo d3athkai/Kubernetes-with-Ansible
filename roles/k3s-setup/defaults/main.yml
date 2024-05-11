@@ -17,8 +17,3 @@ k3s_pod_network_cidr: 172.16.0.0/16
 # Calico Settings
 # Latest Calico version: https://github.com/projectcalico/calico/releases
 calico_version: 3.27.3  # Format: W.XY.Z
-
-# Kubens Settings
-# Latest Kubens version: https://github.com/ahmetb/kubectx/releases
-kubens_enabled: true
-kubens_version: 0.9.5  # Format: X.Y.Z
