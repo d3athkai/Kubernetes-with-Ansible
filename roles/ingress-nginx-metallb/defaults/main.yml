@@ -1,5 +1,5 @@
 ---
-# defaults file for kubernetes-setup
+# defaults file for ingress-nginx-metallb
 
 # MetalLB Settings
 # Latest MetalLB version: https://metallb.universe.tf/release-notes

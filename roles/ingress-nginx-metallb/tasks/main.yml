@@ -1,17 +1,17 @@
 ---
-# task file for kubernetes-setup
+# task file for ingress-nginx-metallb
 
 # 1. Deploy MetalLB
 - ansible.builtin.import_tasks: 01_deploy-metallb.yml
   when: metallb_enabled | bool == true
-  tags: "1"
+  tags: "metallb"
 
 # 2. Deploy NGINX Ingress Controller
 - ansible.builtin.import_tasks: 02_deploy-ingress-nginx.yml
   when: nginx_controller_enabled | bool == true
-  tags: "2"
+  tags: "nginx"
 
 # 3. Test NGINX Deployment
 - ansible.builtin.import_tasks: 03_test-nginx-deployment.yml
   when: test_nginx_deployment_enabled | bool == true
-  tags: "3"
+  tags: "test"
