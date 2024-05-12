@@ -1,0 +1,15 @@
+---
+###
+###
+# Kubernetes CLI Tools
+#
+# Changelogs:
+# - v1: 11/05/2024 - initial release
+###
+###
+- name: Kubernetes CLI Tools
+  hosts: bastion-host
+  become: yes
+  become_user: root
+  roles:
+  - kubernetes-cli-tools
