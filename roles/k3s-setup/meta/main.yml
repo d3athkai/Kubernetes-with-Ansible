@@ -11,14 +11,14 @@ galaxy_info:
   platforms:
     - name: Ubuntu
       versions:
-        - jammy
+        - noble
 
   galaxy_tags:
+    - kubernetes
+    - k3s
     - kubeadm
     - kubectl
     - kubelet
-    - kubernetes
-    - k3s
 
 collections:
   - community.general
