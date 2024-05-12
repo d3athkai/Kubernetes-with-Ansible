@@ -1,0 +1,25 @@
+---
+# task file for kubernetes-cli-tools
+
+- block:
+  # 1. Install Kubectx
+  - ansible.builtin.import_tasks: 01_install-kubectx.yml
+    when: kubectx_enabled | bool == true
+    tags: "kubectx"
+
+  # 2. Install Kubens
+  - ansible.builtin.import_tasks: 02_install-kubens.yml
+    when: kubens_enabled | bool == true
+    tags: "kubens"
+
+  # 3. Install K9s
+  - ansible.builtin.import_tasks: 03_install-k9s.yml
+    when: k9s_enabled | bool == true
+    tags: "k9s"
+
+  # 4. Install kube-capacity
+  - ansible.builtin.import_tasks: 04_install-kube-capacity.yml
+    when: kube_capacity_enabled | bool == true
+    tags: "kube-capacity"
+
+  when: ansible_distribution=="Ubuntu" or ansible_distribution=="Rocky"

@@ -1,0 +1,55 @@
+---
+  ###
+  ###
+  # INSTALL KUBE-CAPACITY
+  ###
+  ###
+  - name: Download kube-capacity
+    ansible.builtin.get_url:
+      url: "https://github.com/robscott/kube-capacity/releases/download/v{{ kube_capacity_version }}/kube-capacity_v{{ kube_capacity_version }}_linux_x86_64.tar.gz"
+      dest: /tmp/kube-capacity.tar.gz
+      mode: '0640'
+
+  - name: Untar kube-capacity
+    ansible.builtin.unarchive:
+      src: /tmp/kube-capacity.tar.gz
+      dest: /tmp
+      remote_src: true
+
+  - name: Copy kube-capacity to /usr/local/bin
+    ansible.builtin.copy:
+      src: /tmp/kube-capacity
+      dest: /usr/local/bin/kube-capacity
+      owner: root
+      group: root
+      mode: '0755'
+      remote_src: true
+
+
+  - name: Remove LICENSE file in /tmp
+    ansible.builtin.file:
+      path: /tmp/LICENSE
+      state: absent
+
+  - name: Remove README.md file in /tmp
+    ansible.builtin.file:
+      path: /tmp/README.md
+      state: absent
+
+  - name: Remove kube-capacity file in /tmp
+    ansible.builtin.file:
+      path: /tmp/kube-capacity
+      state: absent
+
+  - name: Remove kube-capacity tar file in /tmp
+    ansible.builtin.file:
+      path: /tmp/kube-capacity.tar.gz
+      state: absent
+
+
+  - name: Get kube-capacity version
+    ansible.builtin.command: "kube-capacity version"
+    register: kubecapacity_version
+
+  - name: Display kube-capacity version
+    ansible.builtin.debug: msg="{{ kubecapacity_version.stdout }}"

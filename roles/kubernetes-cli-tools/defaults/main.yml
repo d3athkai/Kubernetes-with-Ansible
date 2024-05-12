@@ -1,0 +1,22 @@
+---
+# defaults file for kubernetes-cli-tools
+
+# Kubectx Settings
+# Latest Kubectx version: https://github.com/ahmetb/kubectx/releases
+kubectx_enabled: true
+kubectx_version: 0.9.5  # Format: X.Y.Z
+
+# Kubens Settings
+# Latest Kubens version: https://github.com/ahmetb/kubectx/releases
+kubens_enabled: true
+kubens_version: 0.9.5  # Format: X.Y.Z
+
+# K9s Settings
+# Latest K9s version: https://github.com/derailed/k9s/releases
+k9s_enabled: true
+k9s_version: 0.32.4  # Format: X.Y.Z
+
+# kube-capacity Settings
+# Latest kube-capacity version: https://github.com/robscott/kube-capacity/releases
+kube_capacity_enabled: true
+kube_capacity_version: 0.8.0  # Format: X.Y.Z
