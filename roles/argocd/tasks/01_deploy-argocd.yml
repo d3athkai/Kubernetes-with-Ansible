@@ -1,0 +1,69 @@
+---
+  ###
+  ###
+  # DEPLOY ARGO CD
+  ###
+  ###
+  - name: Create Argo CD namespace
+    ansible.builtin.command: "kubectl create namespace {{ argocd_namespace }}"
+    register: namespace_result  
+    failed_when: namespace_result.rc not in [ 0, 1 ]  
+
+  - name: Deploy non-HA Argo CD
+    ansible.builtin.command: "kubectl apply -n {{ argocd_namespace }} -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
+    when: argocd_ha_enabled | bool == false
+
+  - name: Deploy HA Argo CD
+    ansible.builtin.command: "kubectl apply -n {{ argocd_namespace }} -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/ha/install.yaml"
+    when: argocd_ha_enabled | bool == true
+
+  - name: Waiting for Argo CD pods to be ready...
+    ansible.builtin.pause:
+      seconds: 60
+
+  - name: Get Argo CD deployments, pods and services
+    ansible.builtin.command: "kubectl get deployments,pods,services -n {{ argocd_namespace }}"
+    register: argocd_deploy_pod_svc
+
+  - name: Display Argo CD deployments, pods and services
+    ansible.builtin.debug: msg="{{ argocd_deploy_pod_svc.stdout_lines }}"
+
+
+  - name: Create TLS secret for Argo CD ingress
+    ansible.builtin.command: "kubectl create secret tls argocd-tls-secret -n {{ argocd_namespace }} --cert={{ argocd_tlscert }} --key={{ argocd_tlscert_private_key_dir }}"
+
+  - name: Get Argo CD TLS secret
+    ansible.builtin.command: "kubectl describe secret argocd-tls-secret -n {{ argocd_namespace }}"
+    register: argocd_tls_secret
+
+  - name: Display Argo CD TLS secret
+    ansible.builtin.debug: msg="{{ argocd_tls_secret.stdout_lines }}"
+
+
+  - name: Create /tmp/argocd-ingress.yml
+    ansible.builtin.template:
+      src: argocd-ingress.yml.j2
+      dest: /tmp/argocd-ingress.yml
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Create Argo CD ingress
+    ansible.builtin.command: "kubectl apply -f /tmp/argocd-ingress.yml"
+
+  - name: Get Argo CD ingress
+    ansible.builtin.command: "kubectl get ingress argocd-ingress -n {{ argocd_namespace }}"
+    register: argocd_ingress
+
+  - name: Display Argo CD ingress
+    ansible.builtin.debug: msg="{{ argocd_ingress.stdout_lines }}"
+
+
+  - name: Get Argo CD initial admin password
+    ansible.builtin.shell: "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d;echo"
+    args:
+      executable: /bin/bash
+    register: argocd_initial_admin_password
+
+  - name: Display Argo CD initial admin password
+    ansible.builtin.debug: msg="{{ argocd_initial_admin_password.stdout }}"

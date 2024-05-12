@@ -1,0 +1,20 @@
+---
+# defaults file for argocd
+
+# Argo CD CLI Setup
+argocd_namespace: argocd
+argocd_ha_enabled: false
+
+# Argo CD TLS Settings
+kubernetes_ingress_class: nginx
+argocd_url: <URL>
+argocd_tlscert: <PATH TO TLS CERTIFICATE>
+argocd_tlscert_private_key_dir: <PATH TO TLS PRIVATE KEY>
+
+# Argo CD CLI Settings
+# Latest Argo CD CLI version: https://github.com/argoproj/argo-cd/releases
+# Whether to deploy Argo CD CLI in Kubernetes Master node
+# Argo CD admin password can only be changed with Argo CD CLI installed
+argocd_cli_enabled: true
+argocd_cli_version: 2.11.0  # Format: X.Y.Z
+argocd_admin_password: <PASSWORD>

@@ -1,0 +1,26 @@
+---
+galaxy_info:
+  author: d3athkai
+  description: Argo CD
+  company: https://github.com/d3athkai
+
+  license: "license (GPLv3)"
+
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: Kubernetes
+      versions:
+        - all
+    - name: Rocky Linux
+      versions:
+        - 9
+    - name: Ubuntu
+      versions:
+        - noble
+
+  galaxy_tags:
+    - kubernetes
+    - argocd
+
+dependencies: []

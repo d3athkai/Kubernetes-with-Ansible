@@ -1,0 +1,11 @@
+---
+# task file for argocd
+
+# 1. Deploy Argo CD
+- ansible.builtin.import_tasks: 01_deploy-argocd.yml
+  tags: "setup"
+
+# 2. Install Argo CD CLI
+- ansible.builtin.import_tasks: 02_install-argocd-cli.yml
+  when: argocd_cli_enabled | bool == true
+  tags: "cli"

@@ -1,0 +1,28 @@
+{% for host in ansible_play_hosts %}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-ingress
+  namespace: {{ argocd_namespace }}
+  annotations:
+    kubernetes.io/ingress.class: "{{ kubernetes_ingress_class }}"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  ingressClassName: {{ kubernetes_ingress_class }}
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            port:
+              name: http
+    host: {{ argocd_url }}
+  tls:
+  - hosts:
+    - {{ argocd_url }}
+    secretName: argocd-tls-secret
+{% endfor %}
