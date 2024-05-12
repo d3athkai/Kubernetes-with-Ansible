@@ -1,0 +1,15 @@
+---
+###
+###
+# Argo CD
+#
+# Changelogs:
+# - v1: 13/05/2024 - initial release
+###
+###
+- name: Argo CD
+  hosts: k8s-master
+  become: yes
+  become_user: root
+  roles:
+  - argocd
