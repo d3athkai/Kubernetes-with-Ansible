@@ -4,10 +4,12 @@
   
 # Kubernetes with Ansible
   
+  
+  
 ## Introduction
 The main goal of this repo is to help with the setup and management of your Kubernetes Cluster using Ansible.
   
-## Prerequisite
+## Prerequisites
 * Ansible Server to run the role(s)
 * Master node and Workers nodes installed with at least Ubuntu 22 or above
 * Full network connectivity between the Ansible Server, Master node and Workers nodes
@@ -32,6 +34,10 @@ nfsserver
 k8smaster  
 k8sworkers  
 ```
+* Install the required Ansible collection:  
+  `ansible-galaxy install -r requirements.yml`
+  
+  
   
 ## Ansible Roles
   
@@ -48,9 +54,10 @@ This role is to setup either a HA or single Argo CD server setup with admin pass
   
 **Usage**  
 1. Update the variables in `roles/argocd/defaults/main.yml`
-2. Update the ***hosts*** to Kubernetes Master or Kubernetes Basition host
+2. Update the ***hosts*** in `argocd.yml` to Kubernetes Master or Kubernetes Basition host
 3. Execute the role: `ansible-playbook argocd.yml`
-
+  
+  
 ### ingress-nginx-metallb
   
 **Introduction**  
@@ -64,9 +71,28 @@ This role is to setup Ingress NGINX and MetalLB, with the option to test NGINX d
   
 **Usage**  
 1. Update the variables in `roles/ingress-nginx-metallb/defaults/main.yml`
-2. Update the ***hosts*** to Kubernetes Master or Kubernetes Basition host
+2. Update the ***hosts*** in `ingress-nginx-metallb.yml` to Kubernetes Master or Kubernetes Basition host
 3. Execute the role: `ansible-playbook ingress-nginx-metallb.yml`
+  
 
+### k3s-setup
+This role is to bootstrap a k3s Kubernetes Cluster (any k8s verison) consisting of 1 Master node and multiple Worker nodes.  
+The container runtime installed will be **containerd** while the container network interface installed will be **calico**.  
+*Steps are based on https://docs.k3s.io/installation*  
+  
+**Requirements**  
+* Ansible inventory groups for Kubernetes Master node and Kubernetes Worker nodes
+* Whether IPv6 and OS firewall is enabled
+* Kubernetes version
+* Kubernetes Pod Network CIDR
+* Calico Version
+  
+**Usage**  
+1. Update the variables in `roles/k3s-setup/defaults/main.yml`
+2. Update the ***hosts*** in `k3s-setup.yml` to Ansible inventory group for Kubernetes Master node and Kubernetes Worker nodes
+3. Execute the role: `ansible-playbook k3s-setup.yml`
+  
+  
 ### kubernetes-cli-tools
   
 **Introduction**  
@@ -80,49 +106,45 @@ This role is to install kubextx, kubens, k9s and kube_capacity cli on Kubernetes
   
 **Usage**  
 1. Update the variables in `roles/kubernetes-cli-tools/defaults/main.yml`
-2. Update the ***hosts*** to Kubernetes Basition host
+2. Update the ***hosts*** in `kubernetes-cli-tools.yml` to Kubernetes Basition host
 3. Execute the role: `ansible-playbook kubernetes-cli-tools.yml`
-
+  
+  
+### kubernetes-setup
+This role is to bootstrap a Kubernetes Cluster (any k8s verison) consisting of 1 Master node and multiple Worker nodes with kubeadm.  
+The container runtime installed will be **containerd** while the container network interface installed will be **calico**.  
+*Steps are based on https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/*  
+  
+**Requirements**  
+* Ansible inventory groups for Kubernetes Master node and Kubernetes Worker nodes
+* Whether IPv6 and OS firewall is enabled
+* Kubernetes API Server Port
+* Kubernetes version
+* Kubernetes Pod Network CIDR
+* Calico Version
+  
+**Usage**  
+1. Update the variables in `roles/kubernetes-setup/defaults/main.yml`
+2. Update the ***hosts*** in `kubernetes-setup.yml` to Ansible inventory group for Kubernetes Master node and Kubernetes Worker nodes
+3. Execute the role: `ansible-playbook kubernetes-setup.yml`
+  
+  
 ### nfs-subdir-external-provisioner
   
 **Introduction**  
-This role is setup NFS Subdir External Provisioner storage class for the Kubernetes cluster.
+This role is to setup NFS Subdir External Provisioner storage class for the Kubernetes cluster.
   
 **Requirements**  
-* Ansible inventories for Kubernetes Master node, Kubernetes Worker nodes and NFS server
+* Ansible inventory groups for Kubernetes Master node, Kubernetes Worker nodes and NFS server
 * NFS Shares
-* NFS cidr whitelist
+* NFS Network CIDR to whitelist
 * Testing of mounting NFS share on Kubernetes Worker nodes
 * Namespace(s) to setup NFS Subdir External Provisioner deployment
   
 **Usage**  
 1. Update the variables in `roles/nfs-subdir-external-provisioner/defaults/main.yml`
-2. Update the ***hosts*** to Ansible inventory group for Kubernetes Master node, Kubernetes Worker nodes and NFS server 
+2. Update the ***hosts*** in `nfs-subdir-external-provisioner.yml` to Ansible inventory group for Kubernetes Master node, Kubernetes Worker nodes and NFS server 
 3. Execute the role: `ansible-playbook nfs-subdir-external-provisioner.yml`
-  
-### kubernetes-setup
-***Ansible Role to bootstrap 1 Master, multiple Worker nodes Kubernetes Cluster with kubeadm to the Kubernetes version of your choice.***  
-*Based on https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/*  
-  
-This will setup the Kubernetes Cluster of the following design:  
-* 1 Master node, >= 1 Worker nodes
-* Create a user to manage the Kubernetes Cluster
-* Kubernetes version of your choice (eg: 1.20.5-00)
-* containerd runtime
-* Weave Net for Pod network
-* Option of configuring required ports for Master and Worker nodes with [UFW](https://wiki.ubuntu.com/UncomplicatedFirewall)
-* Option of creating an NGINX deployment after the Kubernetes Cluster is setup
-
-#### Usage:  
-1. Download both *kubernetes-setup.yml* file and *kubernetes-setup* directory to your Ansible server.
-2. Move *kubernetes-setup* directory to Ansible roles folder.
-3. Update the variables inside *<path-to-dir>/roles/kubernetes-setup/defaults/main.yml* accordingly.
-4. Update the hosts to multi-groups specified in the Ansible inventory file inside *kubernetes-setup.yml*.
-5. Install the required Ansible collection:  
-`ansible-galaxy install -r <path-to-dir>/roles/kubernetes-setup/requirements.yml`
-7. Execute the role:  
-`ansible-playbook kubernetes-setup.yml`
-  
   
 ### kubernetes-cluster-rolling-updates  
 ***Ansible Role to perform a rolling upgrade for multiple Master and Worker nodes Kubernetes Cluster to the Kubernetes version of your choice.***  
