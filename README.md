@@ -26,9 +26,37 @@ k8workers
 ```
   
 ## Ansible Roles
-There are currently **2** roles available:  
   
- ### kubernetes-setup
+### argocd
+  
+**Introduction**  
+This role is to setup either a HA or single Argo CD server setup with admin password configured and an option to install argocd cli on the master node.
+  
+**Requirements**  
+* FQDN for Argo CD server
+* TLS Certificate and Private Key
+* Kubernetes Ingress Class
+  
+**Usage**  
+1. Update the variables in `roles/argocd/defaults/main.yml`
+2. Update the ***hosts*** to Kubernetes Master or Kubernetes Basition host
+3.  Execute the role: `ansible-playbook argocd.yml`
+
+### ingress-nginx-metallb
+  
+**Introduction**  
+This role is to setup Ingress NGINX and MetalLB, with the option to test NGINX deployment ingress.
+  
+**Requirements**  
+* MetalLB IP Address Pool
+* FQDN for NGINX Deployment
+  
+**Usage**  
+1. Update the variables in `roles/ingress-nginx-metallb/defaults/main.yml`
+2. Update the ***hosts*** to Kubernetes Master or Kubernetes Basition host
+3.  Execute the role: `ansible-playbook ingress-nginx-metallb.yml`
+  
+### kubernetes-setup
 ***Ansible Role to bootstrap 1 Master, multiple Worker nodes Kubernetes Cluster with kubeadm to the Kubernetes version of your choice.***  
 *Based on https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/*  
   
