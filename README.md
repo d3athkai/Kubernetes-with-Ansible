@@ -36,11 +36,12 @@ This role is to setup either a HA or single Argo CD server setup with admin pass
 * FQDN for Argo CD server
 * TLS Certificate and Private Key
 * Kubernetes Ingress Class
+* Argo CD version
   
 **Usage**  
 1. Update the variables in `roles/argocd/defaults/main.yml`
 2. Update the ***hosts*** to Kubernetes Master or Kubernetes Basition host
-3.  Execute the role: `ansible-playbook argocd.yml`
+3. Execute the role: `ansible-playbook argocd.yml`
 
 ### ingress-nginx-metallb
   
@@ -50,11 +51,46 @@ This role is to setup Ingress NGINX and MetalLB, with the option to test NGINX d
 **Requirements**  
 * MetalLB IP Address Pool
 * FQDN for NGINX Deployment
+* Ingress NGINX version
+* MetalLB version
   
 **Usage**  
 1. Update the variables in `roles/ingress-nginx-metallb/defaults/main.yml`
 2. Update the ***hosts*** to Kubernetes Master or Kubernetes Basition host
-3.  Execute the role: `ansible-playbook ingress-nginx-metallb.yml`
+3. Execute the role: `ansible-playbook ingress-nginx-metallb.yml`
+
+### kubernetes-cli-tools
+  
+**Introduction**  
+This role is to install kubextx, kubens, k9s and kube_capacity cli on Kubernetes Basition host. 
+  
+**Requirements**  
+* kubextx version
+* kubens version
+* k9s version
+* kube_capacity version
+  
+**Usage**  
+1. Update the variables in `roles/kubernetes-cli-tools/defaults/main.yml`
+2. Update the ***hosts*** to Kubernetes Basition host
+3. Execute the role: `ansible-playbook kubernetes-cli-tools.yml`
+
+### nfs-subdir-external-provisioner
+  
+**Introduction**  
+This role is setup NFS Subdir External Provisioner storage class for the Kubernetes cluster.
+  
+**Requirements**  
+* Ansible inventories for Kubernetes Master node, Kubernetes Worker nodes and NFS server
+* NFS Shares
+* NFS cidr whitelist
+* Testing of mounting NFS share on Kubernetes Worker nodes
+* Namespace(s) to setup NFS Subdir External Provisioner deployment
+  
+**Usage**  
+1. Update the variables in `roles/nfs-subdir-external-provisioner/defaults/main.yml`
+2. Update the ***hosts*** to Ansible inventory group for Kubernetes Master node, Kubernetes Worker nodes and NFS server 
+3. Execute the role: `ansible-playbook nfs-subdir-external-provisioner.yml`
   
 ### kubernetes-setup
 ***Ansible Role to bootstrap 1 Master, multiple Worker nodes Kubernetes Cluster with kubeadm to the Kubernetes version of your choice.***  
