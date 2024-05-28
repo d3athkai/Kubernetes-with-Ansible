@@ -9,10 +9,13 @@ The main goal of this repo is to help with the setup and management of your Kube
   
 ## Prerequisite
 * Ansible Server to run the role(s)
-* Master node and Workers nodes installed with Ubuntu 20 (focal)
+* Master node and Workers nodes installed with at least Ubuntu 22 or above
 * Full network connectivity between the Ansible Server, Master node and Workers nodes
 * Ansible inventory file configured, example:  
 ```
+[nfsserver]  
+nfs-server 
+  
 [k8smaster]  
 master-node  
   
@@ -22,7 +25,12 @@ worker-node2
   
 [k8s:children]  
 k8smaster  
-k8workers  
+k8workers
+  
+[k8snfs:children]  
+nfsserver  
+k8smaster  
+k8sworkers  
 ```
   
 ## Ansible Roles
